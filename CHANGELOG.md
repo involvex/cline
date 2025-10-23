@@ -2,8 +2,6 @@
 
 ## 3.34.1
 
-### Patch Changes
-
 - f91769b: Fixed proto naming issue - RPC >>> Rpc
 
 ## [3.34.0]
