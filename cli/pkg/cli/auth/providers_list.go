@@ -8,7 +8,7 @@ import (
 
 	"github.com/cline/cli/pkg/cli/global"
 	"github.com/cline/cli/pkg/cli/task"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 // ProviderDisplay represents a configured provider for display purposes

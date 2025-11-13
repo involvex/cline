@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"syscall"
 	"testing"
 
 	"github.com/cline/cli/pkg/common"
@@ -94,7 +93,11 @@ func TestStartStopStress(t *testing.T) {
 		}
 
 		t.Logf("Killing new instance %s (PID %d) for iteration %d", info.Address, corePID, i)
-		if err := syscall.Kill(corePID, syscall.SIGKILL); err != nil {
+		process, err := os.FindProcess(corePID)
+		if err != nil {
+			t.Fatalf("find process %d: %v", corePID, err)
+		}
+		if err := process.Kill(); err != nil {
 			t.Fatalf("kill pid %d: %v", corePID, err)
 		}
 

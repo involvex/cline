@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cline/cli/client"
 	"github.com/cline/cli/pkg/cli/global"
-	"github.com/cline/grpc-go/client"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 type Manager struct {

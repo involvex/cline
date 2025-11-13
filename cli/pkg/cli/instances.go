@@ -4,16 +4,17 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
-	"syscall"
 	"text/tabwriter"
 	"time"
 
+	client2 "github.com/cline/cli/client"
 	"github.com/cline/cli/pkg/cli/display"
 	"github.com/cline/cli/pkg/cli/global"
 	"github.com/cline/cli/pkg/common"
-	client2 "github.com/cline/grpc-go/client"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
@@ -235,7 +236,7 @@ func killAllCLIInstances(ctx context.Context, registry *global.ClientRegistry) e
 		fmt.Printf("%d failures.", failed)
 		return fmt.Errorf("failed to kill %d out of %d instances", failed, len(instances))
 	}
-	fmt.Println()
+	fmt.Print("\n")
 
 	return nil
 }
@@ -261,9 +262,22 @@ func killInstanceProcess(ctx context.Context, registry *global.ClientRegistry, a
 
 	pid := int(processInfo.ProcessId)
 
-	// Kill the process
-	if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
-		return killResult{address: address, pid: pid, err: err}
+	// Kill the process (platform-aware)
+	if runtime.GOOS == "windows" {
+		// On Windows, use taskkill
+		cmd := exec.Command("taskkill", "/PID", fmt.Sprintf("%d", pid), "/T", "/F")
+		if err := cmd.Run(); err != nil {
+			return killResult{address: address, pid: pid, err: err}
+		}
+	} else {
+		// On Unix-like systems, use os.FindProcess and process.Kill
+		process, err := os.FindProcess(pid)
+		if err != nil {
+			return killResult{address: address, pid: pid, err: err}
+		}
+		if err := process.Kill(); err != nil {
+			return killResult{address: address, pid: pid, err: err}
+		}
 	}
 
 	return killResult{address: address, pid: pid, err: nil}

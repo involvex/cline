@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/cline/grpc-go/host"
+	"github.com/cline/cli/pkg/generated/host"
 )
 
 // WorkspaceService implements the host.WorkspaceServiceServer interface

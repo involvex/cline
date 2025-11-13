@@ -156,7 +156,7 @@ func newLogsPathCommand() *cobra.Command {
 			}
 
 			logsDir := filepath.Join(global.Config.ConfigPath, "logs")
-			fmt.Println(logsDir)
+			fmt.Print(logsDir)
 			return nil
 		},
 	}

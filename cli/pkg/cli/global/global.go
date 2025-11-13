@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/cline/cli/client"
 	"github.com/cline/cli/pkg/common"
-	"github.com/cline/grpc-go/client"
 	"github.com/muesli/termenv"
 )
 

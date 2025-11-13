@@ -116,6 +116,7 @@ async function copyCliBinaries() {
 		{ os: "darwin", arch: "amd64" },
 		{ os: "linux", arch: "amd64" },
 		{ os: "linux", arch: "arm64" },
+		{ os: "windows", arch: "amd64" },
 	]
 
 	const binDir = path.join(BUILD_DIR, "bin")
@@ -375,8 +376,12 @@ function getPlatformInfo() {
 		goArch = 'amd64';
 	}
 
+	// Map Node.js platform names to Go platform names
 	let goPlatform = platform;
-	
+	if (platform === 'win32') {
+		goPlatform = 'windows';
+	}
+
 	return { platform: goPlatform, arch: goArch };
 }
 
@@ -396,7 +401,7 @@ function setupBinaries() {
 	if (!fs.existsSync(clineSource)) {
 		console.error(\`Error: Binary not found for platform \${platformSuffix}\`);
 		console.error(\`Expected: \${clineSource}\`);
-		console.error(\`Supported platforms: darwin-arm64, darwin-amd64, linux-amd64, linux-arm64\`);
+		console.error(\`Supported platforms: darwin-arm64, darwin-amd64, linux-amd64, linux-arm64, windows-amd64\`);
 		process.exit(1);
 	}
 	

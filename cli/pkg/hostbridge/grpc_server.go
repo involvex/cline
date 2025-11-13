@@ -6,7 +6,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/cline/grpc-go/host"
+	"github.com/cline/cli/pkg/generated/host"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"

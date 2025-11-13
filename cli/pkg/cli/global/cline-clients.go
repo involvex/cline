@@ -7,11 +7,11 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"syscall"
+	"runtime"
 	"time"
 
 	"github.com/cline/cli/pkg/common"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 // ClineClients manages Cline instances using the new registry system
@@ -252,8 +252,53 @@ func startClineHost(hostPort, corePort int) (*exec.Cmd, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get executable path: %w", err)
 	}
-	binDir := path.Dir(execPath)
-	clineHostPath := path.Join(binDir, "cline-host")
+	binDir := filepath.Dir(execPath)
+
+	if Config.Verbose {
+		fmt.Printf("CLI executable path: %s\n", execPath)
+		fmt.Printf("CLI bin directory: %s\n", binDir)
+	}
+
+	// On Windows, executables have .exe extension
+	clineHostName := "cline-host"
+	if runtime.GOOS == "windows" {
+		clineHostName = "cline-host.exe"
+	}
+
+	// Try multiple possible locations for cline-host
+	var clineHostPath string
+	possiblePaths := []string{
+		filepath.Join(binDir, clineHostName),                              // Same directory as CLI
+		filepath.Join(binDir, "..", "..", "dist-standalone", "bin", clineHostName), // Development path
+	}
+
+	for _, path := range possiblePaths {
+		if Config.Verbose {
+			fmt.Printf("Checking for cline-host at: %s\n", path)
+		}
+		if _, err := os.Stat(path); err == nil {
+			clineHostPath = path
+			if Config.Verbose {
+				fmt.Printf("Found cline-host at: %s\n", clineHostPath)
+			}
+			break
+		}
+	}
+
+	if clineHostPath == "" {
+		return nil, fmt.Errorf("cline-host executable not found in any of the expected locations: %v", possiblePaths)
+	}
+
+	// On Windows, we need to use the full path to avoid "cannot run executable found relative to current directory" error
+	if runtime.GOOS == "windows" {
+		absPath, err := filepath.Abs(clineHostPath)
+		if err == nil {
+			clineHostPath = absPath
+			if Config.Verbose {
+				fmt.Printf("Using absolute path: %s\n", clineHostPath)
+			}
+		}
+	}
 
 	// Start the cline-host process
 	cmd := exec.Command(clineHostPath,
@@ -280,9 +325,12 @@ func startClineHost(hostPort, corePort int) (*exec.Cmd, error) {
 	cmd.Stderr = logFile
 
 	// Put the child process in a new process group so Ctrl+C doesn't kill it
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true,
-	}
+	// Note: Setpgid is Unix-specific, Windows handles this differently
+	// On Windows, child processes are automatically in their own process group
+	// when started with exec.Command, so this is not needed
+	// cmd.SysProcAttr = &syscall.SysProcAttr{
+	//	Setpgid: true,
+	// }
 
 	if err := cmd.Start(); err != nil {
 		logFile.Close()
@@ -324,8 +372,12 @@ func KillInstanceByAddress(ctx context.Context, registry *ClientRegistry, addres
 		fmt.Printf("Terminating process PID %d...\n", pid)
 	}
 
-	// Kill the process
-	if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
+	// Kill the process - Windows compatible
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return fmt.Errorf("failed to find process %d: %w", pid, err)
+	}
+	if err := process.Kill(); err != nil {
 		return fmt.Errorf("failed to kill process %d: %w", pid, err)
 	}
 
@@ -386,9 +438,7 @@ func startClineCore(corePort, hostPort int) (*exec.Cmd, error) {
 		}
 	}
 
-	binDir := path.Dir(realPath)
-	installDir := path.Dir(binDir)
-	clineCorePath := path.Join(installDir, "cline-core.js")
+	binDir := filepath.Dir(realPath)
 
 	if Config.Verbose {
 		fmt.Printf("Executable path: %s\n", execPath)
@@ -396,38 +446,34 @@ func startClineCore(corePort, hostPort int) (*exec.Cmd, error) {
 			fmt.Printf("Real path (after resolving symlinks): %s\n", realPath)
 		}
 		fmt.Printf("Bin directory: %s\n", binDir)
-		fmt.Printf("Install directory: %s\n", installDir)
-		fmt.Printf("Looking for cline-core.js at: %s\n", clineCorePath)
 	}
 
-	// Check if cline-core.js exists at the primary location
+	// Try multiple possible locations for cline-core.js
 	var finalClineCorePath string
 	var finalInstallDir string
-	if _, err := os.Stat(clineCorePath); os.IsNotExist(err) {
-		// Development mode: Try ../../dist-standalone/cline-core.js
-		// This handles the case where we're running from cli/bin/cline
-		devClineCorePath := path.Join(binDir, "..", "..", "dist-standalone", "cline-core.js")
-		devInstallDir := path.Join(binDir, "..", "..", "dist-standalone")
-		
+	possibleCorePaths := []string{
+		filepath.Join(binDir, "..", "cline-core.js"),                    // Same directory as bin (production mode)
+		filepath.Join(binDir, "..", "..", "dist-standalone", "cline-core.js"), // Development path
+	}
+
+	for _, corePath := range possibleCorePaths {
+		installDir := filepath.Dir(corePath) // The directory containing cline-core.js
 		if Config.Verbose {
-			fmt.Printf("Primary location not found, trying development path: %s\n", devClineCorePath)
+			fmt.Printf("Checking for cline-core.js at: %s\n", corePath)
 		}
-		
-		if _, err := os.Stat(devClineCorePath); os.IsNotExist(err) {
-			return nil, fmt.Errorf("cline-core.js not found at '%s' or '%s'. Please ensure you're running from the correct location or reinstall with 'npm install -g cline'", clineCorePath, devClineCorePath)
+		if _, err := os.Stat(corePath); err == nil {
+			finalClineCorePath = corePath
+			finalInstallDir = installDir
+			if Config.Verbose {
+				fmt.Printf("Found cline-core.js at: %s\n", finalClineCorePath)
+				fmt.Printf("Using install directory: %s\n", finalInstallDir)
+			}
+			break
 		}
-		
-		finalClineCorePath = devClineCorePath
-		finalInstallDir = devInstallDir
-		if Config.Verbose {
-			fmt.Printf("Using development mode: cline-core.js found at %s\n", finalClineCorePath)
-		}
-	} else {
-		finalClineCorePath = clineCorePath
-		finalInstallDir = installDir
-		if Config.Verbose {
-			fmt.Printf("Using production mode: cline-core.js found at %s\n", finalClineCorePath)
-		}
+	}
+
+	if finalClineCorePath == "" {
+		return nil, fmt.Errorf("cline-core.js not found in any of the expected locations: %v", possibleCorePaths)
 	}
 
 	// Create logs directory in ~/.cline/logs
@@ -465,17 +511,29 @@ func startClineCore(corePort, hostPort int) (*exec.Cmd, error) {
 	cmd.Stderr = logFile
 
 	// Put the child process in a new process group so Ctrl+C doesn't kill it
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true,
-	}
+	// Note: Setpgid is Unix-specific, Windows handles this differently
+	// On Windows, child processes are automatically in their own process group
+	// when started with exec.Command, so this is not needed
+	// cmd.SysProcAttr = &syscall.SysProcAttr{
+	//	Setpgid: true,
+	// }
 
-	// Set environment variables with NODE_PATH for both real and fake node_modules
-	// The fake node_modules contains the vscode stub that can't be in the real node_modules
+	// Set environment variables with NODE_PATH for node_modules
+	// For development builds, the vscode stub is in node_modules/vscode
 	env := os.Environ()
 	realNodeModules := path.Join(finalInstallDir, "node_modules")
 	fakeNodeModules := path.Join(finalInstallDir, "fake_node_modules")
-	nodePath := fmt.Sprintf("%s%c%s", realNodeModules, os.PathListSeparator, fakeNodeModules)
-	
+
+	// Check if fake_node_modules exists, if not, just use real node_modules
+	var nodePath string
+	if _, err := os.Stat(fakeNodeModules); err == nil {
+		// fake_node_modules exists (NPM build)
+		nodePath = fmt.Sprintf("%s%c%s", realNodeModules, os.PathListSeparator, fakeNodeModules)
+	} else {
+		// fake_node_modules doesn't exist (JetBrains/development build)
+		nodePath = realNodeModules
+	}
+
 	env = append(env,
 		fmt.Sprintf("NODE_PATH=%s", nodePath),
 		"GRPC_TRACE=all",
@@ -483,7 +541,7 @@ func startClineCore(corePort, hostPort int) (*exec.Cmd, error) {
 		"NODE_ENV=development",
 	)
 	cmd.Env = env
-	
+
 	if Config.Verbose {
 		fmt.Printf("NODE_PATH set to: %s\n", nodePath)
 	}

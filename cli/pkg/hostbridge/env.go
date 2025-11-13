@@ -7,8 +7,8 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/cline/cli/pkg/cli/global"
-	"github.com/cline/grpc-go/cline"
-	"github.com/cline/grpc-go/host"
+	"github.com/cline/cli/pkg/generated/cline"
+	"github.com/cline/cli/pkg/generated/host"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/cline/grpc-go/cline"
-	"github.com/cline/grpc-go/host"
+	"github.com/cline/cli/pkg/generated/cline"
+	"github.com/cline/cli/pkg/generated/host"
 )
 
 // SimpleWorkspaceService implements a basic workspace service without complex dependencies

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 // ClineMessage represents a conversation message in the CLI

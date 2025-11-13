@@ -1,6 +1,6 @@
 module github.com/cline/cli
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/atotto/clipboard v0.1.4
@@ -9,16 +9,16 @@ require (
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/huh v0.7.1-0.20251005153135-a01a1e304532
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
-	github.com/cline/grpc-go v0.0.0
+
 	github.com/glebarez/go-sqlite v1.22.0
 	github.com/muesli/termenv v0.16.0
 	github.com/spf13/cobra v1.8.0
-	golang.org/x/term v0.32.0
+	golang.org/x/term v0.37.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.6
 )
 
-replace github.com/cline/grpc-go => ../src/generated/grpc-go
+
 
 require (
 	github.com/alecthomas/chroma/v2 v2.14.0 // indirect
@@ -52,10 +52,10 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yuin/goldmark v1.7.8 // indirect
 	github.com/yuin/goldmark-emoji v1.0.5 // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
 	modernc.org/libc v1.37.6 // indirect
 	modernc.org/mathutil v1.6.0 // indirect

@@ -11,7 +11,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	proto "github.com/cline/grpc-go/host"
+	proto "github.com/cline/cli/pkg/generated/host"
 )
 
 // diffSession represents an in-memory diff editing session

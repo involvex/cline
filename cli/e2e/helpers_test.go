@@ -9,13 +9,12 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 	"testing"
 	"time"
 
 	"github.com/cline/cli/pkg/cli/global"
 	"github.com/cline/cli/pkg/common"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 const (
@@ -260,7 +259,12 @@ func findAndKillHostProcess(t *testing.T, hostPort int) {
 
 	if pid > 0 {
 		t.Logf("Cleaning up dangling host process PID %d on port %d", pid, hostPort)
-		if err := syscall.Kill(pid, syscall.SIGKILL); err != nil {
+		process, err := os.FindProcess(pid)
+		if err != nil {
+			t.Logf("Warning: failed to find process %d: %v", pid, err)
+			return
+		}
+		if err := process.Kill(); err != nil {
 			t.Logf("Warning: failed to kill dangling host process %d: %v", pid, err)
 		}
 	}

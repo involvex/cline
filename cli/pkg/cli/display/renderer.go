@@ -8,7 +8,7 @@ import (
 	"github.com/cline/cli/pkg/cli/global"
 	"github.com/cline/cli/pkg/cli/output"
 	"github.com/cline/cli/pkg/cli/types"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 type Renderer struct {

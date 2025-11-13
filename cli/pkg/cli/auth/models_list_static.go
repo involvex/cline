@@ -5,7 +5,7 @@ import (
 	"sort"
 
 	"github.com/cline/cli/pkg/generated"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 // SupportsStaticModelList returns true if the provider has a predefined static model list

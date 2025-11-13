@@ -3,7 +3,7 @@ package cline;
 import "cline/common.proto";
 import "cline/models.proto";
 import "cline/browser.proto";
-option go_package = "github.com/cline/grpc-go/cline";
+option go_package = "github.com/cline/cli/pkg/generated/cline";
 option java_package = "bot.cline.proto";
 option java_multiple_files = true;
 

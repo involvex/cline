@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
+	"os/signal"
+	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
@@ -15,7 +19,8 @@ import (
 	"github.com/cline/cli/pkg/cli/display"
 	"github.com/cline/cli/pkg/cli/global"
 	"github.com/cline/cli/pkg/common"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
+	"github.com/cline/cli/pkg/hostbridge"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +39,12 @@ var (
 )
 
 func main() {
+	// Check if this executable is being run as cline-host
+	if isRunningAsHost() {
+		runHostBridge()
+		return
+	}
+
 	rootCmd := &cobra.Command{
 		Use:   "cline [prompt]",
 		Short: "Cline CLI - AI-powered coding assistant",
@@ -345,4 +356,73 @@ func getContentFromStdinAndArgs(args []string) (string, error) {
 	}
 
 	return content.String(), nil
+}
+
+// isRunningAsHost checks if this executable is being run as cline-host
+func isRunningAsHost() bool {
+	// Get the executable name
+	execPath, err := os.Executable()
+	if err != nil {
+		return false
+	}
+
+	// Get the base name of the executable
+	execName := filepath.Base(execPath)
+
+	// Check if it ends with "cline-host" (with or without extension)
+	return strings.Contains(execName, "cline-host")
+}
+
+// runHostBridge runs the host bridge service
+func runHostBridge() {
+	var port int
+	var verbose bool
+
+	rootCmd := &cobra.Command{
+		Use:   "cline-host",
+		Short: "Cline Host Bridge Service",
+		Long:  `A simple host bridge service that provides host operations for Cline Core.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+
+			// Create gRPC hostbridge service
+			service := hostbridge.NewGrpcServer(port, verbose)
+
+			// Handle graceful shutdown
+			ctx, cancel := context.WithCancel(ctx)
+			defer cancel()
+
+			go func() {
+				sigChan := make(chan os.Signal, 1)
+				signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+				<-sigChan
+
+				if verbose {
+					log.Println("Shutting down hostbridge server...")
+				}
+
+				cancel()
+			}()
+
+			// Start server
+			if verbose {
+				log.Printf("Starting Cline Host Bridge on port %d", port)
+			}
+
+			// Run the service
+			if err := service.Start(ctx); err != nil {
+				return fmt.Errorf("failed to run service: %w", err)
+			}
+
+			return nil
+		},
+	}
+
+	rootCmd.Flags().IntVarP(&port, "port", "p", 51052, "port to listen on")
+	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
+
+	if err := rootCmd.ExecuteContext(context.Background()); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }

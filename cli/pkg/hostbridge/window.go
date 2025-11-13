@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	proto "github.com/cline/grpc-go/host"
+	proto "github.com/cline/cli/pkg/generated/host"
 )
 
 // WindowService implements the proto.WindowServiceServer interface

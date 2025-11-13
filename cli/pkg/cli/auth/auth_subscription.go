@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/cline/cli/pkg/cli/global"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 // AuthStatusListener manages subscription to auth status updates

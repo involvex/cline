@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmbracelet/huh"
 	"github.com/cline/cli/pkg/cli/task"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )

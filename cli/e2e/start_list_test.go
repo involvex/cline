@@ -3,7 +3,7 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"syscall"
+	"os"
 	"testing"
 )
 
@@ -117,8 +117,12 @@ func TestCrashCleanup(t *testing.T) {
 	}
 
 	t.Logf("Testing graceful shutdown (SIGTERM) for instance %s (PID %d)", gracefulTarget.Address, gracefulPID)
-	if err := syscall.Kill(gracefulPID, syscall.SIGTERM); err != nil {
-		t.Fatalf("kill SIGTERM pid %d: %v", gracefulPID, err)
+	process, err := os.FindProcess(gracefulPID)
+	if err != nil {
+		t.Fatalf("find process %d: %v", gracefulPID, err)
+	}
+	if err := process.Kill(); err != nil {
+		t.Fatalf("kill pid %d: %v", gracefulPID, err)
 	}
 
 	// Wait for registry cleanup
@@ -141,8 +145,12 @@ func TestCrashCleanup(t *testing.T) {
 	}
 
 	t.Logf("Testing crash cleanup (SIGKILL) for instance %s (PID %d)", crashTarget.Address, crashPID)
-	if err := syscall.Kill(crashPID, syscall.SIGKILL); err != nil {
-		t.Fatalf("kill SIGKILL pid %d: %v", crashPID, err)
+	crashProcess, err := os.FindProcess(crashPID)
+	if err != nil {
+		t.Fatalf("find process %d: %v", crashPID, err)
+	}
+	if err := crashProcess.Kill(); err != nil {
+		t.Fatalf("kill pid %d: %v", crashPID, err)
 	}
 
 	// Wait for registry cleanup

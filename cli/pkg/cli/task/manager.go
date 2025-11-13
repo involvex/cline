@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cline/cli/client"
 	"github.com/cline/cli/pkg/cli/display"
 	"github.com/cline/cli/pkg/cli/global"
 	"github.com/cline/cli/pkg/cli/handlers"
 	"github.com/cline/cli/pkg/cli/types"
-	"github.com/cline/grpc-go/client"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 // Sentinel errors for CheckSendEnabled

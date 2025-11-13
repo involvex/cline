@@ -3,7 +3,7 @@ package hostbridge
 import (
 	"log"
 
-	"github.com/cline/grpc-go/host"
+	"github.com/cline/cli/pkg/generated/host"
 )
 
 // WatchService implements the host.WatchServiceServer interface

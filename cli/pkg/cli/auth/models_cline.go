@@ -6,7 +6,7 @@ import (
 
 	"github.com/cline/cli/pkg/cli/global"
 	"github.com/cline/cli/pkg/cli/task"
-	"github.com/cline/grpc-go/cline"
+	"github.com/cline/cli/pkg/generated/cline"
 )
 
 // DefaultClineModelID is the default model ID for Cline provider.
