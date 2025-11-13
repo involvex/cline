@@ -271,8 +271,22 @@ async function createNpmPackageFiles() {
 		process.exit(1)
 	}
 
-	await cpr(packageJsonSource, packageJsonDest)
-	console.log(`✓ package.json copied from ${packageJsonSource}`)
+	// Copy and modify package.json for npm package
+	const packageJson = JSON.parse(fs.readFileSync(packageJsonSource, "utf8"))
+
+	// Add bin field for npm package (postinstall script creates the symlinks)
+	packageJson.bin = {
+		cline: "bin/cline",
+		"cline-host": "bin/cline-host",
+	}
+
+	// Add postinstall script
+	packageJson.scripts = {
+		postinstall: "node postinstall.js",
+	}
+
+	fs.writeFileSync(packageJsonDest, JSON.stringify(packageJson, null, 2))
+	console.log(`✓ package.json copied and modified from ${packageJsonSource}`)
 
 	// Copy README.md from cli/ directory
 	const readmeSource = path.join("cli", "README.md")
