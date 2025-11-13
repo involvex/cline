@@ -8,9 +8,7 @@
 		"cline-host": "bin/cline-host.exe"
 	},
 	"man": "./man/cline.1",
-	"scripts": {
-		"postinstall": "node postinstall.js"
-	},
+	"scripts": {},
 	"bundleDependencies": [
 		"@grpc/grpc-js",
 		"@grpc/reflection",
