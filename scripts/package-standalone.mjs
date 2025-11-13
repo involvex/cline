@@ -233,27 +233,28 @@ async function copyRipgrepBinary() {
 	console.log(`✓ Ripgrep binary copied to ${ripgrepBinaryDest}`)
 }
 
-/**
- * Create a VERSION file with build metadata
- */
-async function createVersionFile() {
-	const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"))
-	const version = packageJson.version
-	const platform = getCurrentPlatform()
-	const buildDate = new Date().toISOString()
-
-	const versionInfo = {
-		version,
-		platform,
-		buildDate,
-		nodeVersion: TARGET_NODE_VERSION,
-	}
-
-	const versionPath = path.join(BUILD_DIR, "VERSION.txt")
-	fs.writeFileSync(versionPath, JSON.stringify(versionInfo, null, 2))
-
-	console.log(`✓ VERSION file created: ${version} (${platform})`)
-}
+// Note: createVersionFile is currently unused but kept for potential future use
+// /**
+//  * Create a VERSION file with build metadata
+//  */
+// async function createVersionFile() {
+// 	const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"))
+// 	const version = packageJson.version
+// 	const platform = getCurrentPlatform()
+// 	const buildDate = new Date().toISOString()
+//
+// 	const versionInfo = {
+// 		version,
+// 		platform,
+// 		buildDate,
+// 		nodeVersion: TARGET_NODE_VERSION,
+// 	}
+//
+// 	const versionPath = path.join(BUILD_DIR, "VERSION.txt")
+// 	fs.writeFileSync(versionPath, JSON.stringify(versionInfo, null, 2))
+//
+// 	console.log(`✓ VERSION file created: ${version} (${platform})`)
+// }
 
 /**
  * Copy NPM package files (package.json, README.md, and man page) from cli/ directory

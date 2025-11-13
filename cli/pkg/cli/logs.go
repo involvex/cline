@@ -55,7 +55,7 @@ func newLogsListCommand() *cobra.Command {
 
 			if len(logs) == 0 {
 				fmt.Println("No log files found.")
-				fmt.Printf("Log files will be created in: %s\n", logsDir)
+				fmt.Printf("Log files will be created in: %s", logsDir)
 				return nil
 			}
 

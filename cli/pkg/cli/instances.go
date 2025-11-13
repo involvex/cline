@@ -304,11 +304,11 @@ func newInstanceListCommand() *cobra.Command {
 			}
 			defaultInstance := registry.GetDefaultInstance()
 
-			if len(instances) == 0 {
-				fmt.Println("No Cline instances found.")
-				fmt.Println("Run 'cline instance new' to start a new instance, or 'cline task new \"...\"' to auto-start one.")
-				return nil
-			}
+	if len(instances) == 0 {
+		fmt.Print("No Cline instances found.")
+		fmt.Println("Run 'cline instance new' to start a new instance, or 'cline task new \"...\"' to auto-start one.")
+		return nil
+	}
 
 			// Build instance data
 			type instanceRow struct {

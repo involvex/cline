@@ -205,30 +205,31 @@ export async function goProtoc(outDir, protoFiles) {
 	await generateGoServiceClients()
 }
 
-async function generateGoMod() {
-	console.log(chalk.cyan("Generating Go module file..."))
-
-	const goModContent = `module github.com/cline/grpc-go
-
-go 1.21
-
-require (
-	google.golang.org/grpc v1.65.0
-	google.golang.org/protobuf v1.34.2
-)
-
-require (
-	golang.org/x/net v0.26.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
-)
-`
-
-	const goModPath = path.join(GO_PROTO_DIR, "go.mod")
-	await fs.writeFile(goModPath, goModContent)
-	console.log(chalk.green(`Generated Go module file at ${goModPath}`))
-}
+// Note: generateGoMod is currently unused but kept for potential future use
+// async function generateGoMod() {
+// 	console.log(chalk.cyan("Generating Go module file..."))
+//
+// 	const goModContent = `module github.com/cline/grpc-go
+//
+// 	go 1.21
+//
+// 	require (
+// 		google.golang.org/grpc v1.65.0
+// 		google.golang.org/protobuf v1.34.2
+// 	)
+//
+// 	require (
+// 		golang.org/x/net v0.26.0 // indirect
+// 		golang.org/x/sys v0.21.0 // indirect
+// 		golang.org/x/text v0.16.0 // indirect
+// 		google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
+// 	)
+// `
+//
+// 	const goModPath = path.join(GO_PROTO_DIR, "go.mod")
+// 	await fs.writeFile(goModPath, goModContent)
+// 	console.log(chalk.green(`Generated Go module file at ${goModPath}`))
+// }
 
 async function generateGoConnection() {
 	console.log(chalk.cyan("Generating Go connection manager..."))
